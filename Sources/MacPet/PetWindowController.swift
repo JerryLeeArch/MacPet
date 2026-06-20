@@ -9,9 +9,11 @@ final class PetWindowController: NSWindowController {
     private let defaultSize: CGFloat = 180
     private var isAdjustmentModeActive = false
     private var isClampingWindowFrame = false
+    private var isResizingWindowFrame = false
     private var currentImageAspectRatio: CGFloat = 1
     private var isShowingPlaceholder = false
     private var currentImageURL: URL?
+    private var resizeAnchor = PetResizeAnchor.bottomLeft
 
     var onPlacementChanged: (() -> Void)?
 
@@ -124,7 +126,7 @@ final class PetWindowController: NSWindowController {
             resizeWindowToCurrentImage()
         }
 
-        savePlacement()
+        savePlacement(shouldUpdateResizeAnchor: false)
     }
 
     func applyOpacity(_ opacity: CGFloat) {
@@ -230,12 +232,16 @@ final class PetWindowController: NSWindowController {
         move(to: screen, relativeTopLeft: relativePosition)
     }
 
-    private func savePlacement() {
+    private func savePlacement(shouldUpdateResizeAnchor: Bool = true) {
         guard let screen = currentScreen() else {
             return
         }
 
         clampWindowToVisibleFrame(of: screen)
+
+        if shouldUpdateResizeAnchor {
+            updateResizeAnchor(for: screen)
+        }
 
         imageStore.displayID = Self.displayID(for: screen)
         imageStore.relativePosition = relativeTopLeftPosition(in: screen)
@@ -255,16 +261,24 @@ final class PetWindowController: NSWindowController {
             return
         }
 
-        var frame = window.frame
-        let bottomLeft = frame.origin
         let newSize = renderedSize(forLongEdge: imageStore.displaySize)
-        frame.size = newSize
-        frame.origin = bottomLeft
+        let frame = resizeAnchor.resizedFrame(from: window.frame, to: newSize)
+
+        isResizingWindowFrame = true
         window.setFrame(frame, display: true)
+        isResizingWindowFrame = false
 
         imageView.frame = NSRect(origin: .zero, size: newSize)
         adjustmentOverlayView.frame = NSRect(origin: .zero, size: newSize)
         window.contentView?.frame = NSRect(origin: .zero, size: newSize)
+    }
+
+    private func updateResizeAnchor(for screen: NSScreen) {
+        guard let frame = window?.frame else {
+            return
+        }
+
+        resizeAnchor = PetResizeAnchor.corner(for: frame, in: screen.visibleFrame)
     }
 
     private func renderedSize(forLongEdge longEdge: CGFloat) -> NSSize {
@@ -371,7 +385,7 @@ private final class AdjustmentOverlayView: NSView {
 
 extension PetWindowController: NSWindowDelegate {
     func windowDidMove(_ notification: Notification) {
-        guard !isClampingWindowFrame else {
+        guard !isClampingWindowFrame, !isResizingWindowFrame else {
             return
         }
 

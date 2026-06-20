@@ -6,6 +6,16 @@
 
 MacPet is a lightweight native macOS menu bar app that displays a local image or looping GIF as a click-through desktop pet. It uses Swift and AppKit and does not use the network.
 
+## Demo
+
+<p align="center">
+  <a href="Resources/MacPetDemo.mp4">
+    <img src="Resources/MacPetDemo.gif" alt="MacPet setup and corner-anchored resizing demo" width="640">
+  </a>
+</p>
+
+<p align="center"><sub>Click the preview to open the MP4 video.</sub></p>
+
 ## Requirements
 
 - macOS 14 or later
@@ -36,6 +46,8 @@ The app is ad-hoc signed for local use. On the first launch, if macOS blocks it 
 2. Open **Set My Pet...** and choose a local PNG, JPEG, GIF, TIFF, or BMP image.
 3. Set its size, opacity, display, and position.
 4. Use **Adjust Image** to drag it. Outside adjustment mode, mouse clicks pass through to the app below it.
+
+When the pet is resized, the outer corner of its current display quadrant stays fixed. For example, a pet in the bottom-left quadrant grows from its bottom-left corner, while one in the top-right quadrant grows from its top-right corner.
 
 GIF playback uses the source frame timing by default. A custom FPS control appears only when a GIF is selected.
 
