@@ -1,5 +1,9 @@
 # MacPet
 
+<p align="center">
+  <img src="Resources/AppIcon.png" alt="MacPet app icon" width="160">
+</p>
+
 MacPet is a lightweight native macOS menu bar app that displays a local image or looping GIF as a click-through desktop pet. It uses Swift and AppKit and does not use the network.
 
 ## Requirements
